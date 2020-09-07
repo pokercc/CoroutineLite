@@ -9,13 +9,14 @@ import kotlin.coroutines.Continuation
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 import kotlin.coroutines.resume
-
+// It define a coroutine like a thread in java.
 abstract class AbstractCoroutine<T>(context: CoroutineContext) : Job, Continuation<T>, CoroutineScope {
 
     protected val state = AtomicReference<CoroutineState>()
 
     override val context: CoroutineContext
 
+    // Usually it's useless. Use the context
     override val scopeContext: CoroutineContext
         get() = context
 
@@ -100,7 +101,9 @@ abstract class AbstractCoroutine<T>(context: CoroutineContext) : Job, Continuati
             is CoroutineState.CompleteWaitForChildren<*>,
             is CoroutineState.Cancelling -> return joinSuspend()
             is CoroutineState.Complete<*> -> {
-                val currentCallingJobState = coroutineContext[Job]?.isActive ?: return
+                // Where is the suspend function?
+                val currentCallingJobState = coroutineContext[Job]
+                        ?.isActive ?: return
                 if (!currentCallingJobState) {
                     throw CancellationException("Coroutine is cancelled.")
                 }

@@ -9,7 +9,7 @@ interface CoroutineExceptionHandler : CoroutineContext.Element {
 
     fun handleException(context: CoroutineContext, exception: Throwable)
 }
-
+// to much sugar ,fuck.
 inline fun CoroutineExceptionHandler(crossinline handler: (CoroutineContext, Throwable) -> Unit): CoroutineExceptionHandler =
         object : AbstractCoroutineContextElement(CoroutineExceptionHandler), CoroutineExceptionHandler {
             override fun handleException(context: CoroutineContext, exception: Throwable) =

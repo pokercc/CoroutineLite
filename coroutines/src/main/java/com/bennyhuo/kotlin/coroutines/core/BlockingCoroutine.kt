@@ -4,6 +4,7 @@ import com.bennyhuo.kotlin.coroutines.dispatcher.Dispatcher
 import java.util.concurrent.LinkedBlockingDeque
 import kotlin.coroutines.CoroutineContext
 
+// ignore It don't what about this.
 typealias EventTask = () -> Unit
 
 class BlockingQueueDispatcher : LinkedBlockingDeque<EventTask>(), Dispatcher {

@@ -3,7 +3,7 @@ package com.bennyhuo.kotlin.coroutines.scope
 import com.bennyhuo.kotlin.coroutines.Job
 import com.bennyhuo.kotlin.coroutines.core.AbstractCoroutine
 import kotlin.coroutines.*
-
+// Scope only have context???
 interface CoroutineScope {
     val scopeContext: CoroutineContext
 }
@@ -20,7 +20,7 @@ fun CoroutineScope.cancel() {
             ?: error("Scope cannot be cancelled because it does not have a job: $this")
     job.cancel()
 }
-
+// means suspend all in the block
 suspend fun <R> coroutineScope(block: suspend CoroutineScope.() -> R): R =
         suspendCoroutine { continuation ->
             val coroutine = ScopeCoroutine(continuation.context, continuation)

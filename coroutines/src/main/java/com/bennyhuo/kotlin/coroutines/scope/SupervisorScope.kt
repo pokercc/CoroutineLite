@@ -11,6 +11,7 @@ private class SupervisorCoroutine<T>(
 ) : ScopeCoroutine<T>(context, continuation) {
 
     override fun handleChildException(e: Throwable): Boolean {
+        // don't care child coroutine exception
         return false
     }
 

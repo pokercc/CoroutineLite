@@ -13,7 +13,15 @@ import kotlin.coroutines.resumeWithException
 
 class CancellableContinuation<T>(private val continuation: Continuation<T>) : Continuation<T> by continuation {
 
+    /**
+     * Cancel State
+     */
     private val state = AtomicReference<CancelState>(CancelState.InComplete)
+
+
+    /**
+     * Cancel Action
+     */
     private val decision = AtomicReference(CancelDecision.UNDECIDED)
 
     val isCompleted: Boolean
@@ -24,12 +32,18 @@ class CancellableContinuation<T>(private val continuation: Continuation<T>) : Co
             CancelState.Cancelled -> true
         }
 
+    /**
+     * resume the coroutine
+     */
     override fun resumeWith(result: Result<T>) {
+        // state transfer
         when {
+            // if not cancel,set resumed
             decision.compareAndSet(CancelDecision.UNDECIDED, CancelDecision.RESUMED) -> {
                 // before getResult called.
                 state.set(CancelState.Complete(result.getOrNull(), result.exceptionOrNull()))
             }
+            // if suspend
             decision.compareAndSet(CancelDecision.SUSPENDED, CancelDecision.RESUMED) -> {
                 state.updateAndGet { prev ->
                     when (prev) {
@@ -74,6 +88,7 @@ class CancellableContinuation<T>(private val continuation: Continuation<T>) : Co
 
     fun cancel() {
         if (isCompleted) return
+        // Why cancel parent?
         val parent = continuation.context[Job] ?: return
         parent.cancel()
     }
@@ -92,7 +107,11 @@ class CancellableContinuation<T>(private val continuation: Continuation<T>) : Co
         }
     }
 
+    /**
+     * perform cancel
+     */
     private fun doCancel() {
+        // Why state have the fucking CancelHandler? It's not normal.
         val prevState = state.getAndUpdate { prev ->
             when (prev) {
                 is CancelState.CancelHandler,
@@ -114,6 +133,7 @@ class CancellableContinuation<T>(private val continuation: Continuation<T>) : Co
 
 
 suspend inline fun <T> suspendCancellableCoroutine(
+        // I don't understand `crossinline` meaning.
         crossinline block: (CancellableContinuation<T>) -> Unit
 ): T = suspendCoroutineUninterceptedOrReturn { continuation ->
     val cancellable = CancellableContinuation(continuation.intercepted())

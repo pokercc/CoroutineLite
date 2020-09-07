@@ -7,19 +7,19 @@ import com.bennyhuo.kotlin.coroutines.exception.CoroutineExceptionHandler
 import com.bennyhuo.kotlin.coroutines.scope.GlobalScope
 import com.bennyhuo.kotlin.coroutines.scope.supervisorScope
 
-suspend fun main(){
+suspend fun main() {
 
     val exceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         log(coroutineContext[CoroutineName], throwable)
     }
 
-    GlobalScope.launch(exceptionHandler) {
+    GlobalScope.launch(exceptionHandler + CoroutineName("1")) {
         log(1)
         supervisorScope {
             log(2)
-            launch(exceptionHandler) {
+            launch(exceptionHandler + CoroutineName("3")) {
                 log(3)
-                launch(exceptionHandler) {
+                launch(exceptionHandler + CoroutineName("4")) {
                     log(4)
                     throw IllegalStateException()
                 }.join()
